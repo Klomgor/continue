@@ -1,4 +1,10 @@
 import { ConfigResult } from "@continuedev/config-yaml";
+
+import { AutocompleteInput } from "../autocomplete/util/types";
+import { ProfileDescription } from "../config/ConfigHandler";
+import { OrganizationDescription } from "../config/ProfileLifecycleManager";
+import { SharedConfigSchema } from "../config/sharedConfig";
+
 import type {
   BrowserSerializedContinueConfig,
   ChatMessage,
@@ -12,7 +18,7 @@ import type {
   IdeSettings,
   LLMFullCompletionOptions,
   ModelDescription,
-  ModelRoles,
+  ExperimentalModelRoles,
   PromptLog,
   RangeInFile,
   SerializedContinueConfig,
@@ -21,16 +27,8 @@ import type {
   SiteIndexingConfig,
   ToolCall,
 } from "../";
-import { AutocompleteInput } from "../autocomplete/util/types";
-import { ProfileDescription } from "../config/ConfigHandler";
-import { SharedConfigSchema } from "../config/sharedConfig";
 
-export type OnboardingModes =
-  | "Local"
-  | "Best"
-  | "Custom"
-  | "Quickstart"
-  | "LocalAfterFreeTrial";
+export type OnboardingModes = "Local" | "Best" | "Custom" | "Quickstart";
 
 export interface ListHistoryOptions {
   offset?: number;
@@ -54,7 +52,7 @@ export type ToCoreFromIdeOrWebviewProtocol = {
   "config/addModel": [
     {
       model: SerializedContinueConfig["models"][number];
-      role?: keyof ModelRoles;
+      role?: keyof ExperimentalModelRoles;
     },
     void,
   ];
@@ -64,7 +62,7 @@ export type ToCoreFromIdeOrWebviewProtocol = {
     undefined,
     {
       result: ConfigResult<BrowserSerializedContinueConfig>;
-      profileId: string;
+      profileId: string | null;
     },
   ];
   "config/deleteModel": [{ title: string }, void];
@@ -186,13 +184,12 @@ export type ToCoreFromIdeOrWebviewProtocol = {
   "docs/getDetails": [{ startUrl: string }, DocsIndexingDetails];
   addAutocompleteModel: [{ model: ModelDescription }, void];
 
-  "profiles/switch": [{ id: string }, undefined];
-
-  "auth/getAuthUrl": [undefined, { url: string }];
+  "auth/getAuthUrl": [{ useOnboarding: boolean }, { url: string }];
   "tools/call": [
     { toolCall: ToolCall; selectedModelTitle: string },
     { contextItems: ContextItem[] },
   ];
   "clipboardCache/add": [{ content: string }, void];
-  "controlPlane/openUrl": [{ path: string }, void];
+  "controlPlane/openUrl": [{ path: string; orgSlug: string | undefined }, void];
+  "controlPlane/listOrganizations": [undefined, OrganizationDescription[]];
 };
