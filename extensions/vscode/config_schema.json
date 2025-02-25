@@ -193,6 +193,7 @@
             "deepinfra",
             "groq",
             "fireworks",
+            "ncompass",
             "cloudflare",
             "deepseek",
             "azure",
@@ -238,6 +239,7 @@
             "### DeepInfra\n\n> [Reference](https://docs.continue.dev/reference/Model%20Providers/deepinfra)",
             "### Groq\nGroq provides extremely fast inference of open-source language models. To get started, obtain an API key from [their console](https://console.groq.com/keys).",
             "### Fireworks\nFireworks is a fast inference engine for open-source language models. To get started, obtain an API key from [their console](https://fireworks.ai/api-keys).",
+            "### Ncompass\nnCompass is an extremely fast inference engine for open-source language models. To get started, obtain an API key from [their console](https://app.ncompass.tech/api-settings).",
             "### Cloudflare Workers AI\n\n[Reference](https://developers.cloudflare.com/workers-ai/)",
             "### Deepseek\n Deepseek's API provides the best pricing for their state-of-the-art Deepseek Coder models. To get started, obtain an API key from [their console](https://platform.deepseek.com/api_keys)",
             "### Azure OpenAI\n Azure OpenAI lets you securely run OpenAI's models on Azure. To get started, follow the steps [here](https://docs.continue.dev/reference/Model%20Providers/azure)",
@@ -264,7 +266,7 @@
         },
         "apiKey": {
           "title": "Api Key",
-          "description": "OpenAI, Anthropic, Cohere, Together, Novita AI, or other API key",
+          "description": "OpenAI, Anthropic, Cohere, Together, Novita AI, nCompass, or other API key",
           "type": "string"
         },
         "apiBase": {
@@ -440,6 +442,10 @@
             "uploadImage": {
               "type": "boolean",
               "description": "Indicates whether the model can upload images."
+            },
+            "tools": {
+              "type": "boolean",
+              "description": "Indicates whether the model can use tools"
             }
           }
         }
@@ -477,6 +483,7 @@
                   "huggingface-inference-api",
                   "replicate",
                   "together",
+                  "ncompass",
                   "novita",
                   "cloudflare",
                   "sambanova",
@@ -936,7 +943,8 @@
                   "gemini-1.5-flash-latest",
                   "gemini-1.5-flash",
                   "gemini-1.5-flash-8b",
-                  "gemini-2.0-flash-exp"
+                  "gemini-2.0-flash-exp",
+                  "gemini-2.0-flash"
                 ]
               }
             }
@@ -998,6 +1006,8 @@
                 "anyOf": [
                   {
                     "enum": [
+                      "deepseek-r1",
+                      "deepseek_v3",
                       "llama3-8b",
                       "llama3-70b",
                       "llama3.1-8b",
@@ -1365,6 +1375,23 @@
         {
           "if": {
             "properties": {
+              "provider": {
+                "enum": ["ncompass"]
+              }
+            },
+            "required": ["provider"]
+          },
+          "then": {
+            "properties": {
+              "model": {
+                "enum": ["qwen2.5-coder-32b", "qwen2.5-72b", "llama3.3-70b"]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
               "apiType": {
                 "const": "azure"
               }
@@ -1679,33 +1706,6 @@
           }
         }
       ]
-    },
-    "ModelRoles": {
-      "title": "ModelRoles",
-      "type": "object",
-      "properties": {
-        "default": {
-          "title": "Default",
-          "description": "The default model. If other model roles are not set, they will fall back to default.",
-          "type": "string"
-        },
-        "chat": {
-          "title": "Chat",
-          "description": "The model to use for chat. If not set, will fall back to default.",
-          "type": "string"
-        },
-        "edit": {
-          "title": "Edit",
-          "description": "The model to use for editing. If not set, will fall back to default.",
-          "type": "string"
-        },
-        "summarize": {
-          "title": "Summarize",
-          "description": "The model to use for summarization. If not set, will fall back to default.",
-          "type": "string"
-        }
-      },
-      "required": ["default"]
     },
     "SlashCommand": {
       "title": "SlashCommand",
