@@ -4,22 +4,12 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - "extensions/intellij/**"
-      - "extensions/vscode/**"
-      - "core/**"
-      - "gui/**"
-      - ".github/workflows/**"
+      - staging
 
   push:
     branches:
       - main
-    paths:
-      - "extensions/intellij/**"
-      - "extensions/vscode/**"
-      - "core/**"
-      - "gui/**"
-      - ".github/workflows/**"
+      - staging
 
 jobs:
   install-root:
@@ -285,10 +275,13 @@ jobs:
           cd core
           npm test
         env:
+          IGNORE_API_KEY_TESTS: ${{ github.event.pull_request.head.repo.fork }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_FOUNDRY_API_KEY: ${{ secrets.AZURE_FOUNDRY_API_KEY }}
 
   vscode-get-test-file-matrix:
     runs-on: ubuntu-latest
@@ -443,6 +436,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
           echo -e "Host ssh-test-container\n\tHostName $SSH_HOST\n\tUser ec2-user\n\tIdentityFile ~/.ssh/id_rsa" >> ~/.ssh/config
+        if: ${{ github.event.pull_request.head.repo.fork == false }}
 
       - name: Set up Xvfb
         run: |
@@ -452,7 +446,7 @@ jobs:
       - name: Run e2e tests
         run: |
           cd extensions/vscode
-          TEST_FILE="${{ matrix.test_file }}" npm run ${{ matrix.command }}
+          IGNORE_SSH_TESTS="${{ github.event.pull_request.head.repo.fork }}" TEST_FILE="${{ matrix.test_file }}" npm run ${{ matrix.command }}
         env:
           DISPLAY: :99
 
